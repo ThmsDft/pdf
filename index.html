@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Editor</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="pdf-lib/pdf-lib.min.js"></script>
+  </head>
+  <body>
+    <!-- Écran de sélection de fichier -->
+    <div id="fileUploadScreen" class="file-upload-screen">
+      <div class="upload-box">
+        <div id="dropZone" class="drop-zone">
+          <i class="fas fa-file-pdf fa-3x"></i>
+          <p>Glissez-déposez un fichier PDF ici</p>
+          <span>ou</span>
+          <button id="selectFileBtn" class="select-file-btn">
+            Sélectionner un fichier
+          </button>
+          <input
+            type="file"
+            id="fileInput"
+            accept=".pdf"
+            style="display: none"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Écran d'édition de PDF (initialement caché) -->
+    <div id="pdfEditorScreen" class="app-container" style="display: none">
+      <!-- Barre supérieure (Header) -->
+      <header class="header-bar">
+        <div class="header-left">
+          <button class="icon-button" id="toggle-sidebar-btn">
+            <i class="fas fa-bars"></i>
+          </button>
+          <span class="document-title-container">
+            <i
+              class="fas fa-chevron-left"
+              id="backToUploadBtn"
+              title="Changer de fichier"
+            ></i>
+            <span class="document-name" id="pdfDocumentName"
+              >Document name</span
+            >
+            <span class="exhibit-tag">Exhibit 3</span>
+          </span>
+        </div>
+        <div class="header-center">
+          <div class="search-container">
+            <input type="text" placeholder="Search" class="search-input" />
+            <i class="fas fa-search search-icon"></i>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <button
+            class="icon-button"
+            id="saveModifiedPdfBtn"
+            title="Enregistrer les modifications"
+          >
+            <i class="fas fa-save"></i>
+          </button>
+          <button class="icon-button"><i class="fas fa-bell"></i></button>
+          <button class="icon-button">
+            <i class="fas fa-user-circle"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Contenu Principal -->
+      <main class="main-content">
+        <!-- Barre latérale gauche -->
+        <aside class="sidebar left-sidebar" id="leftSidebar">
+          <section class="sidebar-section">
+            <h4>Actions</h4>
+            <ul>
+              <li>
+                <a href="#" id="downloadPdfBtn"
+                  ><i class="fas fa-file-pdf"></i> Download PDF</a
+                >
+              </li>
+              <li class="active">
+                <a href="#" id="downloadOriginalBtn"
+                  ><i class="fas fa-download"></i> Download Original</a
+                >
+              </li>
+              <li>
+                <a href="#" id="printPdfBtn"
+                  ><i class="fas fa-print"></i> Print document</a
+                >
+              </li>
+              <li>
+                <a href="#"><i class="fas fa-stamp"></i> Add exhibit stamp</a>
+              </li>
+            </ul>
+          </section>
+          <section class="sidebar-section">
+            <h4>Session folders</h4>
+            <ul>
+              <li>
+                <a href="#"
+                  ><i class="fas fa-user"></i> John Covey
+                  <i class="fas fa-external-link-alt"></i
+                ></a>
+              </li>
+              <li>
+                <a href="#"
+                  ><i class="fas fa-user"></i> Cyclone Covey
+                  <i class="fas fa-external-link-alt"></i
+                ></a>
+              </li>
+              <li>
+                <a href="#"
+                  ><i class="fas fa-user"></i> Thomas Allen
+                  <i class="fas fa-external-link-alt"></i
+                ></a>
+              </li>
+              <li>
+                <a href="#"
+                  ><i class="fas fa-cog"></i> Trial
+                  <i class="fas fa-external-link-alt"></i
+                ></a>
+              </li>
+              <li>
+                <a href="#"
+                  ><i class="fas fa-plus-circle"></i> Add to session</a
+                >
+              </li>
+            </ul>
+          </section>
+          <section class="sidebar-section metadata-section">
+            <h4>Metadata</h4>
+            <div class="metadata-item">
+              <span>Alias</span><span id="metaAlias">Document name</span>
+            </div>
+            <div class="metadata-item">
+              <span>Pages</span><span id="metaPages">0</span>
+            </div>
+            <div class="metadata-item">
+              <span>Original Name</span><span id="metaOriginalName">...</span>
+            </div>
+            <div class="metadata-item">
+              <span>Bates No.</span><span>...</span>
+            </div>
+            <div class="metadata-item">
+              <span>Uploaded</span><span id="metaUploadedDate">...</span>
+            </div>
+            <div class="metadata-item">
+              <span>Uploaded By</span
+              ><span id="metaUploadedBy">John Covey</span>
+            </div>
+          </section>
+        </aside>
+
+        <!-- Zone de visualisation du PDF -->
+        <div class="pdf-viewer-area">
+          <div class="pdf-toolbar">
+            <button class="icon-button" title="Page View">
+              <i class="far fa-file-alt"></i>
+            </button>
+            <button class="icon-button" title="Zoom Out" id="zoomOutBtn">
+              <i class="fas fa-minus-circle"></i>
+            </button>
+            <span class="zoom-level" id="zoomLevelDisplay"
+              >100% <i class="fas fa-caret-down"></i
+            ></span>
+            <button class="icon-button" title="Zoom In" id="zoomInBtn">
+              <i class="fas fa-plus-circle"></i>
+            </button>
+            <button class="icon-button" title="Fit to Width">
+              <i class="fas fa-arrows-alt-h"></i>
+            </button>
+            <span class="toolbar-divider"></span>
+            <button class="icon-button" title="Single Page View">
+              <i class="fas fa-square"></i>
+            </button>
+            <button class="icon-button" title="Facing Pages">
+              <i class="fas fa-book-open"></i>
+            </button>
+            <span class="toolbar-divider"></span>
+            <button class="icon-button" title="Rotate Left">
+              <i class="fas fa-undo"></i>
+            </button>
+            <button class="icon-button" title="Rotate Right">
+              <i class="fas fa-redo"></i>
+            </button>
+            <span class="toolbar-divider"></span>
+            <button class="icon-button" title="Text Tool">
+              <i class="fas fa-font"></i>
+            </button>
+            <button class="icon-button" title="Pen Tool">
+              <i class="fas fa-pen-nib"></i>
+            </button>
+            <button class="icon-button" title="Select Tool">
+              <i class="fas fa-mouse-pointer"></i>
+            </button>
+            <button class="icon-button" title="Edit Tool">
+              <i class="fas fa-edit"></i>
+            </button>
+          </div>
+          <div class="pdf-canvas-container" id="pdfCanvasContainer">
+            <div class="loading-spinner" id="pdfLoadingSpinner">
+              <div class="spinner"></div>
+            </div>
+            <canvas id="pdfCanvas"></canvas>
+          </div>
+          <div class="pdf-navigation">
+            <button class="icon-button" id="prevPageBtn">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <span id="pageIndicator"
+              >Page <span id="currentPageNum">0</span> /
+              <span id="totalPagesNum">0</span></span
+            >
+            <button class="icon-button" id="nextPageBtn">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Barre latérale droite (Vignettes) -->
+        <aside class="sidebar right-sidebar" id="thumbnailSidebar">
+          <!-- Les miniatures seront injectées ici par JavaScript -->
+        </aside>
+      </main>
+
+      <!-- Notification Toast (peut être cachée initialement) -->
+      <div class="toast-notification" style="display: none">
+        <div class="toast-content">
+          <strong>Shared snippet</strong>
+          <span>This snippet only</span>
+        </div>
+        <div class="toast-avatars">
+          <span class="avatar">SM</span>
+          <span class="avatar">AD</span>
+          <span class="avatar">FT</span>
+          <span class="avatar more">+4</span>
+        </div>
+        <button class="icon-button toast-close">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>

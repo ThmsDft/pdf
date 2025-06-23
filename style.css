@@ -1,0 +1,226 @@
+/* ==========================================================================
+   Variables Globales et Reset
+   ========================================================================== */
+:root {
+    --bg-main: #f4f6f8;
+    --bg-sidebar: #ffffff;
+    --bg-header: #ffffff;
+    --border-color: #e0e0e0;
+    --text-primary: #333333;
+    --text-secondary: #777777;
+    --accent-color: #007bff;
+    --accent-hover-color: #0056b3;
+    --danger-color: #dc3545;
+    --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+    --sidebar-width: 280px;
+    --thumbnail-bar-width: 200px; /* Largeur de la barre des miniatures */
+    --thumbnail-width: 150px;   /* Largeur CIBLE pour le conteneur de la miniature */
+    --thumbnail-height: 210px;  /* Hauteur CIBLE pour le conteneur de la miniature */
+    --thumbnail-padding: 3px;   /* Petit padding à l'intérieur de la miniature */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+    font-family: var(--font-main); background-color: var(--bg-main); color: var(--text-primary);
+    font-size: 14px; line-height: 1.6; display: flex; justify-content: center;
+    align-items: center; padding: 20px;
+}
+
+/* ==========================================================================
+   Écran de Sélection de Fichier
+   ========================================================================== */
+.file-upload-screen {
+    display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh;
+    background-color: rgba(0,0,0,0.2); position: fixed; top: 0; left: 0; z-index: 2000;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+.file-upload-screen.hidden { opacity: 0; visibility: hidden; }
+.upload-box {
+    background-color: #fff; padding: 40px; border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; width: 450px; max-width: 90%;
+}
+.drop-zone {
+    border: 2px dashed var(--border-color); border-radius: 6px; padding: 30px; cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.drop-zone.dragover { background-color: #e9f5ff; border-color: var(--accent-color); }
+.drop-zone i.fa-file-pdf { color: var(--accent-color); margin-bottom: 15px; font-size: 3em; }
+.drop-zone p { font-size: 1.1em; margin-bottom: 10px; color: var(--text-primary); }
+.drop-zone span { display: block; margin: 15px 0; color: var(--text-secondary); }
+.select-file-btn {
+    background-color: var(--accent-color); color: white; border: none; padding: 10px 20px;
+    border-radius: 4px; font-size: 1em; cursor: pointer; transition: background-color 0.2s ease;
+}
+.select-file-btn:hover { background-color: var(--accent-hover-color); }
+
+/* ==========================================================================
+   Conteneur Principal de l'Application
+   ========================================================================== */
+.app-container {
+    width: 100%; max-width: 1600px; min-height: 600px; height: calc(100vh - 40px); max-height: 950px;
+    background-color: var(--bg-header); display: none; flex-direction: column;
+    border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;
+}
+.app-container.visible { display: flex; }
+
+/* ==========================================================================
+   Barre d'En-tête
+   ========================================================================== */
+.header-bar {
+    display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+    background-color: var(--bg-header); border-bottom: 1px solid var(--border-color);
+    height: 50px; flex-shrink: 0;
+}
+.header-left, .header-center, .header-right { display: flex; align-items: center; }
+.header-left { gap: 15px; } .header-right { gap: 10px; }
+.document-title-container { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
+#backToUploadBtn { cursor: pointer; margin-right: 5px; padding: 5px; }
+#backToUploadBtn:hover { color: var(--text-primary); }
+.document-name {
+    color: var(--text-primary); font-weight: 600; max-width: 250px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.exhibit-tag {
+    background-color: #e0eafc; color: var(--accent-color); padding: 2px 8px;
+    border-radius: 4px; font-size: 0.8em; margin-left: 5px;
+}
+.search-container { position: relative; }
+.search-input { padding: 6px 10px 6px 30px; border: 1px solid var(--border-color); border-radius: 4px; width: 250px; }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+.icon-button {
+    background: none; border: none; color: var(--text-secondary); font-size: 1.0em;
+    cursor: pointer; padding: 5px; border-radius: 3px;
+}
+.icon-button:hover { color: var(--text-primary); background-color: #f0f0f0; }
+#saveModifiedPdfBtn { color: var(--accent-color); font-size: 1.1em; }
+#saveModifiedPdfBtn:hover { color: var(--accent-hover-color); }
+
+/* ==========================================================================
+   Zone de Contenu Principal
+   ========================================================================== */
+.main-content { display: flex; flex-grow: 1; background-color: var(--bg-main); overflow: hidden; }
+
+/* ==========================================================================
+   Barre Latérale Gauche
+   ========================================================================== */
+.sidebar { background-color: var(--bg-sidebar); padding: 15px; overflow-y: auto; flex-shrink: 0; }
+.left-sidebar { width: var(--sidebar-width); border-right: 1px solid var(--border-color); transition: margin-left 0.3s ease-in-out; }
+.left-sidebar.collapsed { margin-left: calc(-1 * var(--sidebar-width)); }
+.sidebar-section { margin-bottom: 20px; }
+.sidebar-section h4 {
+    margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85em; font-weight: 600;
+    text-transform: uppercase; padding-bottom: 5px; border-bottom: 1px solid #f0f0f0;
+}
+.sidebar-section ul { list-style: none; } .sidebar-section ul li { margin-bottom: 5px; }
+.sidebar-section ul li a {
+    text-decoration: none; color: var(--text-primary); display: flex; align-items: center;
+    padding: 8px 10px; border-radius: 4px; font-size: 0.9em;
+}
+.sidebar-section ul li a i { margin-right: 10px; width: 18px; text-align: center; color: var(--text-secondary); font-size: 0.95em; }
+.sidebar-section ul li a .fa-external-link-alt { margin-left: auto; font-size: 0.8em; }
+.sidebar-section ul li.active a, .sidebar-section ul li a:hover { background-color: #e9ecef; }
+.sidebar-section ul li.active a { font-weight: 600; color: var(--accent-color); }
+.sidebar-section ul li.active a i { color: var(--accent-color); }
+.metadata-section .metadata-item {
+    display: flex; justify-content: space-between; font-size: 0.85em;
+    margin-bottom: 6px; color: var(--text-secondary); line-height: 1.4;
+}
+.metadata-section .metadata-item span:first-child { color: var(--text-primary); margin-right: 10px; flex-shrink: 0; }
+.metadata-section .metadata-item span:last-child { text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ==========================================================================
+   Zone Centrale (Visualiseur PDF)
+   ========================================================================== */
+.pdf-viewer-area { flex-grow: 1; display: flex; flex-direction: column; background-color: var(--bg-main); }
+.pdf-toolbar {
+    display: flex; align-items: center; padding: 0 15px; background-color: var(--bg-header);
+    border-bottom: 1px solid var(--border-color); height: 40px; gap: 5px; flex-shrink: 0;
+}
+.pdf-toolbar .icon-button { font-size: 0.95em; }
+.pdf-toolbar .zoom-level {
+    padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer;
+    font-size: 0.85em; margin: 0 5px; min-width: 60px; text-align: center;
+}
+.toolbar-divider { width: 1px; height: 18px; background-color: var(--border-color); margin: 0 8px; }
+.toolbar-right-group { margin-left: auto; display: flex; align-items: center; gap: 15px; }
+.pdf-canvas-container {
+    flex-grow: 1; display: flex; justify-content: center; align-items: center;
+    padding: 20px; overflow: auto; position: relative;
+}
+#pdfCanvas { max-width: 100%; max-height: 100%; display: block; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+.loading-spinner {
+    display: flex; justify-content: center; align-items: center; position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.6); z-index: 10;
+}
+.spinner {
+    border: 5px solid #f3f3f3; border-top: 5px solid var(--accent-color); border-radius: 50%;
+    width: 50px; height: 50px; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.pdf-navigation {
+    display: flex; justify-content: center; align-items: center; padding: 8px 0;
+    background-color: var(--bg-header); border-top: 1px solid var(--border-color);
+    gap: 20px; height: 40px; flex-shrink: 0;
+}
+#pageIndicator { color: var(--text-secondary); font-size: 0.9em; min-width: 120px; text-align: center; }
+
+/* ==========================================================================
+   Barre Latérale Droite (Miniatures)
+   ========================================================================== */
+.right-sidebar {
+    width: var(--thumbnail-bar-width); border-left: 1px solid var(--border-color); display: flex;
+    flex-direction: column; align-items: center; padding: 10px 0; height: 100%;
+    overflow-y: auto; overflow-x: hidden;
+}
+.thumbnail-item {
+    width: var(--thumbnail-width); min-height: var(--thumbnail-height); height: var(--thumbnail-height);
+    border: 2px solid transparent; padding: var(--thumbnail-padding); /* Padding interne pour le canvas */
+    margin: 0 auto 0 auto; cursor: pointer; background-color: #e9ecef;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: center;
+    align-items: center; overflow: hidden; flex-shrink: 0; position: relative;
+}
+.thumbnail-item.active { border-color: var(--accent-color); }
+.thumbnail-item canvas {
+    display: block; max-width: 100%; max-height: 100%; /* Remplir l'espace après padding */
+    object-fit: contain; background-color: #fff;
+}
+.thumbnail-item .mini-spinner {
+    border: 3px solid rgba(0, 0, 0, 0.1); border-top: 3px solid var(--accent-color);
+    border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite;
+}
+.thumbnail-item .error-text { font-size: 10px; color: var(--danger-color); text-align: center; padding: 5px; word-break: break-word; }
+.thumbnail-item .actions-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); padding: 5px; display: flex;
+    flex-direction: row; justify-content: center; align-items: center; gap: 8px;
+    opacity: 0; visibility: hidden; transition: opacity 0.15s ease-in-out, visibility 0.15s ease-in-out; z-index: 1;
+}
+.thumbnail-item:hover .actions-overlay { opacity: 1; visibility: visible; }
+.thumbnail-item .actions-overlay button {
+    background-color: rgba(255, 255, 255, 0.9); border: none; color: var(--text-primary);
+    cursor: pointer; font-size: 1em; padding: 7px 9px; border-radius: 3px; line-height: 1;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.thumbnail-item .actions-overlay button:hover { background-color: #ffffff; color: var(--accent-color); }
+.thumbnail-item .actions-overlay button .fa-trash-alt:hover { color: var(--danger-color); }
+
+/* Drag & Drop des Miniatures */
+.thumbnail-item.dragging { opacity: 0.4; border: 2px dashed var(--accent-color); transform: scale(0.95); }
+.drop-indicator {
+    min-height: 6px; height: 6px; width: var(--thumbnail-width);
+    background-color: transparent; margin: 3px auto; border-radius: 3px;
+    transition: background-color 0.1s ease-in-out, height 0.1s ease-in-out;
+}
+.drop-indicator.visible { background-color: var(--accent-color); }
+
+/* ==========================================================================
+   Notification Toast
+   ========================================================================== */
+.toast-notification {
+    position: fixed; bottom: 30px; right: 30px; background-color: #333; color: #fff;
+    padding: 15px 20px; border-radius: 6px; display: none; align-items: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000;
+}
+/* ... (styles pour .toast-content, .toast-avatars, etc. si besoin) ... */
